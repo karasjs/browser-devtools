@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "dev": "npm run copy & webpack --mode=development --watch",
-    "copy": "cp -f src/devtools.html dist/devtools.html & cp -f src/devtools.js dist/devtools.js & cp -f src/logo.png dist/logo.png & cp -f src/manifest.json dist/manifest.json & cp -f src/popup.html dist/popup.html",
+    "copy": "cp -f src/manifest.json dist/manifest.json & cp -f src/popup.html dist/popup.html",
     "build": "npm run copy & webpack --mode=production",
     "build-source": "npm run copy & webpack --mode=development"
   },

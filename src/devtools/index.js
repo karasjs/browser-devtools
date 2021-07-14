@@ -1,3 +1,5 @@
+import './devtools.html';
+
 chrome.devtools.panels.create("Karas",
   "logo.png",
   "panel.html",

@@ -5,8 +5,11 @@ let devMode = process.env.NODE_ENV === 'development';
 
 let config = {
   entry: {
+    background: './src/background',
+    devtools: './src/devtools/index',
     panel: './src/panel/index',
-    inject: './src/inject/index',
+    content: './src/content/index',
+    inject: './src/content/inject',
   },
   output: {
     path: __dirname + '/dist',
