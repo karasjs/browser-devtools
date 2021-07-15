@@ -53,6 +53,10 @@ let config = {
       },
       {
         test: /(\.jpg)|(\.jpeg)|(\.gif)|(\.png)|(\.ico)|(\.webp)|(\.html?)$/,
+        use: 'file-loader?name=[hash].[ext]',
+      },
+      {
+        test: /\.html?$/,
         use: 'file-loader?name=[name].[ext]',
       },
     ],
