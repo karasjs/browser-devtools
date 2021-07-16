@@ -1,0 +1,64 @@
+.tree{
+  font-size:12px;
+  line-height:1.5;
+
+  .item{
+    height:18px;
+    color:#6a51b2;
+    overflow:hidden;
+
+    &.spread{
+      height:auto;
+
+      >.name b{
+        transform:rotate(0);
+      }
+    }
+
+    &.active{
+      background:#e7f3fe;
+
+      >.name{
+        background:#0088fa !important;
+        color:#FFF;
+      }
+    }
+
+    &.single{
+      >.name b{
+        left:6px;
+        top:6px;
+        width:6px;
+        height:6px;
+        background:#000;
+        border-radius:50%;
+        opacity:0.2;
+        pointer-events:none;
+      }
+    }
+
+    .name{
+      position:relative;
+      padding-left:15px;
+
+      &:hover{
+        background:#d2e9fd;
+      }
+
+      b{
+        position:absolute;
+        left:0;
+        top:0;
+        width:18px;
+        height:18px;
+        background:url(arrow.png) no-repeat center;
+        background-size:8px 8px;
+        transform:rotate(-90deg);
+        transition:transform 0.2s;
+      }
+    }
+    .children{
+      padding-left:10px;
+    }
+  }
+}

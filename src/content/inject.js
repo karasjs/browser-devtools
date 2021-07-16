@@ -1,4 +1,5 @@
 import enums from '../enums';
+import { root2json } from '../convert';
 
 let div = document.createElement('div');
 div.style.zIndex = 10000000;
@@ -7,77 +8,73 @@ div.style.backgroundColor = 'rgba(120, 170, 210, 0.7)';
 div.style.pointerEvents = 'none';
 
 let target;
-let isOnCanvas;
-let isInspect;
+let root;
+let isOnKarasCanvas;
+let isInspectCanvas;
+let isInspectElement;
 document.addEventListener('mousemove', function(e) {
-  if(isInspect) {
+  if(isInspectElement) {
+    console.log(root);
+  }
+  else if(isInspectCanvas) {
     if(e.target !== target) {
-      console.log(e.target)
       target = e.target;
       if(['canvas', 'svg'].indexOf(target.tagName.toLowerCase()) > -1) {
-        let rect = target.getBoundingClientRect();
-        div.style.left = rect.left + 'px';
-        div.style.top = rect.top + 'px';
-        div.style.width = rect.width + 'px';
-        div.style.height = rect.height + 'px';
-        document.body.appendChild(div);
-        isOnCanvas = true;
-        if(window.karas && target.__root && target.__root instanceof window.karas.Root) {
+        if(window.karas && karas.Root && target.__root && target.__root instanceof karas.Root) {
+          root = target.__root;
+          let rect = target.getBoundingClientRect();
+          div.style.left = rect.left + 'px';
+          div.style.top = rect.top + 'px';
+          div.style.width = rect.width + 'px';
+          div.style.height = rect.height + 'px';
+          document.body.appendChild(div);
           window.postMessage({
             KARAS_DEVTOOLS: true,
-            key: enums.IS_CANVAS_KARAS,
+            key: enums.IS_KARAS_CANVAS,
             value: true,
           }, '*');
-        }
-        else {
-          window.postMessage({
-            KARAS_DEVTOOLS: true,
-            key: enums.IS_CANVAS_KARAS,
-            value: false,
-          }, '*');
+          isOnKarasCanvas = true;
+          return;
         }
       }
-      else if(isOnCanvas) {
+      if(isOnKarasCanvas) {
         document.body.removeChild(div);
-        isOnCanvas = false;
-        window.postMessage({
-          KARAS_DEVTOOLS: true,
-          key: enums.IS_CANVAS_KARAS,
-          value: false,
-        }, '*');
       }
-      else {
-        window.postMessage({
-          KARAS_DEVTOOLS: true,
-          key: enums.IS_CANVAS_KARAS,
-          value: false,
-        }, '*');
-      }
+      isOnKarasCanvas = false;
+      window.postMessage({
+        KARAS_DEVTOOLS: true,
+        key: enums.IS_KARAS_CANVAS,
+        value: false,
+      }, '*');
     }
   }
 });
 document.addEventListener('click', function() {
-  console.log('click')
-  if(isInspect) {
-    target = null;
-    isInspect = false;
-    if(isOnCanvas) {
-      document.body.removeChild(div);
-      isOnCanvas = false;
-    }
+  if(isInspectCanvas) {
+    isInspectCanvas = false;
     window.postMessage({
       KARAS_DEVTOOLS: true,
-      key: enums.END_INSPECT,
+      key: enums.END_INSPECT_CANVAS,
     }, '*');
+    if(isOnKarasCanvas) {
+      document.body.removeChild(div);
+      window.postMessage({
+        KARAS_DEVTOOLS: true,
+        key: enums.INIT_ROOT_JSON,
+        value: root2json(karas, root),
+      }, '*');
+    }
+    __KARAS_DEVTOOLS__.endInspectCanvas();
+    target = null;
   }
 });
 
-window.__KARAS_DEVTOOLS__ = {
-  startInspect() {
-    isInspect = true;
+let __KARAS_DEVTOOLS__ = window.__KARAS_DEVTOOLS__ = {
+  startInspectCanvas() {
+    isInspectCanvas = true;
   },
-  endInspect() {
-    isInspect = false;
+  endInspectCanvas() {
+    isInspectCanvas = false;
   },
 };
 
