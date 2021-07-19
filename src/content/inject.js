@@ -65,8 +65,9 @@ document.addEventListener('click', function() {
         value: root2json(karas, root),
       }, '*');
     }
+    else {
+    }
     __KARAS_DEVTOOLS__.endInspectCanvas();
-    target = null;
   }
 });
 
@@ -78,13 +79,47 @@ let __KARAS_DEVTOOLS__ = window.__KARAS_DEVTOOLS__ = {
     isInspectCanvas = false;
   },
   mouseEnter(prefix) {
-    console.log(prefix);
-    let path = prefix.split(',');
+    div.style.width = div.style.height = 0;
+    div.style.transform = null;
     if(root) {
-      // while(path.length) {}
+      let rect = target.getBoundingClientRect();
+      let scx = root.__scx;
+      if(scx === undefined) {
+        scx = rect.width / root.width;
+      }
+      let scy = root.__scy;
+      if(scy === undefined) {
+        scy = rect.height / root.height;
+      }
+      if(prefix) {
+        let vd = root;
+        let path = prefix.split(',');
+        while(path.length) {
+          let index = path.shift();
+          vd = vd.children[index];
+          if(!vd) {
+            return;
+          }
+        }
+        let { sx, sy, outerWidth, outerHeight, matrixEvent } = vd;
+        div.style.left = rect.left + sx * scx + 'px';
+        div.style.top = rect.top + sy * scx + 'px';
+        div.style.width = outerWidth * scx + 'px';
+        div.style.height = outerHeight * scx + 'px';
+        div.style.transform = `matrix3d(${matrixEvent.join(',')})`;
+      }
+      else {
+        div.style.left = rect.left + 'px';
+        div.style.top = rect.top + 'px';
+        div.style.width = rect.width + 'px';
+        div.style.height = rect.height + 'px';
+      }
+      document.body.appendChild(div);
     }
   },
-  mouseLeave(prefix) {},
+  mouseLeave(prefix) {
+    document.body.removeChild(div);
+  },
 };
 
 // function detectKaras() {

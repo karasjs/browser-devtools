@@ -68,6 +68,7 @@ class Tree extends React.Component {
     let hasChildren = Array.isArray(json.children) && json.children.length;
     return <div className={classnames('item', {
       single: !hasChildren,
+      root: !prefix,
     })} key={prefix} title={prefix}>
       <div className="name"
            onMouseEnter={e => this.enter(e, prefix)}
