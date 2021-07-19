@@ -1,3 +1,5 @@
+import enums from '../enums';
+
 let script = document.createElement('script');
 script.src = chrome.extension.getURL('inject.js');
 script.onload = function() {

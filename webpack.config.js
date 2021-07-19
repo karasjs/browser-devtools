@@ -10,6 +10,7 @@ let config = {
     panel: './src/panel/index',
     content: './src/content/index',
     inject: './src/content/inject',
+    popup: './src/popup.html',
   },
   output: {
     path: __dirname + '/dist',
@@ -52,7 +53,7 @@ let config = {
         ],
       },
       {
-        test: /(\.jpg)|(\.jpeg)|(\.gif)|(\.png)|(\.ico)|(\.webp)|(\.html?)$/,
+        test: /(\.jpg)|(\.jpeg)|(\.gif)|(\.png)|(\.ico)|(\.webp)$/,
         use: 'file-loader?name=[hash].[ext]',
       },
       {

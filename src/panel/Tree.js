@@ -1,5 +1,6 @@
 import React from 'react';
 import classnames from 'classnames';
+import enums from '../enums';
 
 import './tree.less';
 
@@ -16,15 +17,9 @@ class Tree extends React.Component {
     }
     let target = e.target;
     let item;
-    if(target.tagName.toLowerCase() === 'b') {
+    if(['b'].indexOf(target.tagName.toLowerCase()) > -1) {
       item = target.parentNode.parentNode;
-    }
-    else if(target.tagName.toLowerCase() === 'div' && target.classList.contains('name')) {
-      item = target.parentNode;
-    }
-    if(item) {
-      item.classList.add('active');
-      if(!target.classList.contains('single')) {
+      if(!item.classList.contains('single')) {
         if(item.classList.contains('spread')) {
           item.classList.remove('spread');
         }
@@ -33,6 +28,40 @@ class Tree extends React.Component {
         }
       }
     }
+    else if(target.tagName.toLowerCase() === 'div' && target.classList.contains('name')) {
+      item = target.parentNode;
+    }
+    if(item) {
+      item.classList.add('active');
+    }
+  }
+
+  dblClick(e) {
+    let last = this.el.querySelector('div.active');
+    if(last) {
+      last.classList.remove('active');
+    }
+    let target = e.target;
+    let item;
+    if(target.tagName.toLowerCase() === 'div' && target.classList.contains('name')) {
+      item = target.parentNode;
+    }
+    if(item && !item.classList.contains('single')) {
+      if(item.classList.contains('spread')) {
+        item.classList.remove('spread');
+      }
+      else {
+        item.classList.add('spread');
+      }
+    }
+  }
+
+  enter(e, prefix) {
+    chrome.devtools.inspectedWindow.eval(`__KARAS_DEVTOOLS__.mouseEnter("${prefix}");`);
+  }
+
+  leave(e, prefix) {
+    chrome.devtools.inspectedWindow.eval(`__KARAS_DEVTOOLS__.mouseLeave("${prefix}");`);
   }
 
   renderTree(json, prefix) {
@@ -40,10 +69,12 @@ class Tree extends React.Component {
     return <div className={classnames('item', {
       single: !hasChildren,
     })} key={prefix} title={prefix}>
-      <div className="name"><b/>{json.tagName}</div>
+      <div className="name"
+           onMouseEnter={e => this.enter(e, prefix)}
+           onMouseLeave={e => this.leave(e, prefix)}><b/>{json.tagName}</div>
       <div className="children">
       {
-        hasChildren && json.children.map((item, i) => this.renderTree(item, prefix + ',' + i))
+        hasChildren && json.children.map((item, i) => this.renderTree(item, (prefix ? prefix + ',' : '') + i))
       }
       </div>
     </div>;
@@ -53,9 +84,10 @@ class Tree extends React.Component {
     if(this.state.json) {
       return <div className="tree"
                   ref={el => this.el = el}
-                  onClick={e => this.click(e)}>
+                  onClick={e => this.click(e)}
+                  onDoubleClick={e => this.dblClick(e)}>
         {
-          this.renderTree(this.state.json, '0')
+          this.renderTree(this.state.json, '')
         }
       </div>;
     }

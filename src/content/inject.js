@@ -58,6 +58,7 @@ document.addEventListener('click', function() {
     }, '*');
     if(isOnKarasCanvas) {
       document.body.removeChild(div);
+      isOnKarasCanvas = false;
       window.postMessage({
         KARAS_DEVTOOLS: true,
         key: enums.INIT_ROOT_JSON,
@@ -76,6 +77,14 @@ let __KARAS_DEVTOOLS__ = window.__KARAS_DEVTOOLS__ = {
   endInspectCanvas() {
     isInspectCanvas = false;
   },
+  mouseEnter(prefix) {
+    console.log(prefix);
+    let path = prefix.split(',');
+    if(root) {
+      // while(path.length) {}
+    }
+  },
+  mouseLeave(prefix) {},
 };
 
 // function detectKaras() {

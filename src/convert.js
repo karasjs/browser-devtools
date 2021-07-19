@@ -1,7 +1,6 @@
 function vd2json(karas, vd) {
   let res = {
     tagName: vd.tagName,
-    children: [],
   };
   if(Array.isArray(vd.children)) {
     res.children = vd.children.map(item => {

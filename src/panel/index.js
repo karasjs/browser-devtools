@@ -60,7 +60,7 @@ class App extends React.Component {
         </div>
         <Tree ref={el => this.tree = el}/>
       </div>
-      <div className="side">456</div>
+      <div className="side"></div>
     </div>;
   }
 }
@@ -83,11 +83,25 @@ chrome.runtime.onMessage.addListener((request, sender) => {
     app.setState({
       isKarasCanvas: request.value,
     });
+    app.tree.setState({
+      json: null,
+    });
   }
   else if(request.key === enums.INIT_ROOT_JSON) {
-    console.log(request.value);
     app.tree.setState({
       json: request.value,
     });
+  }
+  else if(request.key === enums.TAB_UPDATE) {
+    if(request.value === 'loading') {
+      app.setState({
+        inspectCanvas: false,
+        isKarasCanvas: false,
+        inspectElement: false,
+      });
+      app.tree.setState({
+        json: null,
+      });
+    }
   }
 });
