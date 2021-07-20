@@ -85,6 +85,10 @@ chrome.runtime.onMessage.addListener((request, sender) => {
     app.tree.setState({
       json: null,
     });
+    app.attr.setState({
+      json: null,
+      type: null,
+    });
   }
   else if(request.key === enums.INIT_ROOT_JSON) {
     app.tree.setState({
@@ -101,10 +105,13 @@ chrome.runtime.onMessage.addListener((request, sender) => {
       app.tree.setState({
         json: null,
       });
+      app.attr.setState({
+        json: null,
+        type: null,
+      });
     }
   }
   else if(request.key === enums.CLICK_ELEMENT) {
-    console.log(request.value);
     app.attr.setState({
       json: request.value,
     });

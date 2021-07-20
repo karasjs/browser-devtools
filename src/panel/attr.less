@@ -2,38 +2,116 @@
   .box{
     margin:20px 0;
     text-align:center;
+    color:#333;
+
+    &.margin{
+      .margin{
+        background:#f8cca1;
+      }
+      .border, .padding, .content{
+        background:#FFF;
+      }
+    }
+
+    &.border{
+      .border{
+        background:#fddc9f;
+      }
+      .padding, .margin, .content{
+        background:#FFF;
+      }
+    }
+
+    &.padding{
+      .padding{
+        background:#c4ce8e;
+      }
+      .border, .margin, .content{
+        background:#FFF;
+      }
+    }
+
+    &.content{
+      .content{
+        background:#8eb5c0;
+      }
+      .padding, .margin, .border{
+        background:#FFF;
+      }
+    }
+
+    .label{
+      position:absolute;
+      left:2px;
+      top:0;
+      transform:scale(0.917);
+      transform-origin:left center;
+      pointer-events:none;
+    }
+
+    .top{
+      position:absolute;
+      left:50%;
+      top:0;
+      transform:translateX(-50%);
+      pointer-events:none;
+    }
+
+    .bottom{
+      position:absolute;
+      left:50%;
+      bottom:0;
+      transform:translateX(-50%);
+      pointer-events:none;
+    }
+
+    .left{
+      margin-right:5px;
+      pointer-events:none;
+    }
+
+    .right{
+      margin-left:5px;
+      pointer-events:none;
+    }
 
     .margin{
       position:relative;
-      display:inline-block;
-      padding:20px;
-      background:#fddc9f;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px 5px;
+      background:#f8cca1;
       border:1px dashed #000;
+    }
 
-      .border{
-        position:relative;
-        display:inline-block;
-        padding:20px;
-        background:#fddc9f;
-        border:1px solid #000;
-      }
+    .border{
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px 5px;
+      background:#fddc9f;
+      border:1px solid #000;
+    }
 
-      .padding{
-        position:relative;
-        display:inline-block;
-        padding:20px;
-        background:#c4ce8e;
-        border:1px dashed #80868b;
-      }
+    .padding{
+      position:relative;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:20px 5px;
+      background:#c4ce8e;
+      border:1px dashed #80868b;
+    }
 
-      .content{
-        position:relative;
-        display:inline-block;
-        padding:5px 10px;
-        background:#8eb5c0;
-        border:1px solid #80868b;
-        color:#333;
-      }
+    .content{
+      position:relative;
+      display:inline-block;
+      padding:5px 10px 5px 15px;
+      background:#8eb5c0;
+      border:1px solid #80868b;
+      min-width:80px;
     }
   }
 }

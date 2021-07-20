@@ -4,12 +4,45 @@ import { rootTree, vdJson } from '../convert';
 let div = document.createElement('div');
 div.style.zIndex = 10000000;
 div.style.position = 'fixed';
-// div.style.backgroundColor = 'rgba(120, 170, 210, 0.7)';
 div.style.pointerEvents = 'none';
-let div2 = document.createElement('div');
-div2.style.position = 'absolute';
-div2.style.backgroundColor = 'rgba(120, 170, 210, 0.7)';
-div.appendChild(div2);
+let margin = document.createElement('div');
+margin.style.position = 'absolute';
+margin.style.boxSizing = 'border-box';
+margin.style.borderStyle = 'solid';
+margin.style.borderColor = 'rgba(255, 155, 0, 0.3)';
+let border = document.createElement('div');
+border.style.boxSizing = 'border-box';
+border.style.width = border.style.height = '100%';
+border.style.borderStyle = 'solid';
+border.style.borderColor = 'rgba(255, 200, 50, 0.3)';
+let padding = document.createElement('div');
+padding.style.boxSizing = 'border-box';
+padding.style.width = padding.style.height = '100%';
+padding.style.borderStyle = 'solid';
+padding.style.borderColor = 'rgba(77, 200, 0, 0.3)';
+let content = document.createElement('div');
+content.style.boxSizing = 'border-box';
+content.style.width = content.style.height = '100%';
+content.style.backgroundColor = 'rgba(120, 170, 210, 0.7)';
+padding.appendChild(content);
+border.appendChild(padding);
+margin.appendChild(border);
+div.appendChild(margin);
+
+function setMBP(m, b, p) {
+  margin.style.borderTopWidth = (m[0] || 0) + 'px';
+  margin.style.borderRightWidth = (m[1] || 0) + 'px';
+  margin.style.borderBottomWidth = (m[2] || 0) + 'px';
+  margin.style.borderLeftWidth = (m[3] || 0) + 'px';
+  border.style.borderTopWidth = (b[0] || 0) + 'px';
+  border.style.borderRightWidth = (b[1] || 0) + 'px';
+  border.style.borderBottomWidth = (b[2] || 0) + 'px';
+  border.style.borderLeftWidth = (b[3] || 0) + 'px';
+  padding.style.borderTopWidth = (p[0] || 0) + 'px';
+  padding.style.borderRightWidth = (p[1] || 0) + 'px';
+  padding.style.borderBottomWidth = (p[2] || 0) + 'px';
+  padding.style.borderLeftWidth = (p[3] || 0) + 'px';
+}
 
 let target;
 let root;
@@ -31,10 +64,9 @@ document.addEventListener('mousemove', function(e) {
           div.style.top = rect.top + 'px';
           div.style.width = rect.width + 'px';
           div.style.height = rect.height + 'px';
-          div2.style.left = 0;
-          div2.style.top = 0;
-          div2.style.width = '100%';
-          div2.style.height = '100%';
+          setMBP([], [], []);
+          margin.style.width = margin.style.height = '100%';
+          margin.style.left = margin.style.top = 0;
           document.body.appendChild(div);
           window.postMessage({
             KARAS_DEVTOOLS: true,
@@ -45,6 +77,7 @@ document.addEventListener('mousemove', function(e) {
           return;
         }
       }
+      // 之前在karas的canvas/svg上显示，现在不在了要移除
       if(isOnKarasCanvas) {
         document.body.removeChild(div);
       }
@@ -64,6 +97,7 @@ document.addEventListener('click', function() {
       KARAS_DEVTOOLS: true,
       key: enums.END_INSPECT_CANVAS,
     }, '*');
+    // 在模板canvas上点击选中，移除
     if(isOnKarasCanvas) {
       document.body.removeChild(div);
       isOnKarasCanvas = false;
@@ -87,8 +121,8 @@ let __KARAS_DEVTOOLS__ = window.__KARAS_DEVTOOLS__ = {
     isInspectCanvas = false;
   },
   mouseEnter(prefix) {
-    div2.style.width = div2.style.height = 0;
-    div2.style.transform = null;
+    setMBP([], [], []);
+    margin.style.transform = null;
     if(root) {
       let rect = target.getBoundingClientRect();
       let scx = root.__scx;
@@ -110,22 +144,43 @@ let __KARAS_DEVTOOLS__ = window.__KARAS_DEVTOOLS__ = {
           }
         }
         let { sx, sy, outerWidth, outerHeight, matrixEvent } = vd;
-        div2.style.left = sx * scx + 'px';
-        div2.style.top = sy * scx + 'px';
-        div2.style.width = outerWidth * scx + 'px';
-        div2.style.height = outerHeight * scx + 'px';
+        margin.style.left = sx * scx + 'px';
+        margin.style.top = sy * scx + 'px';
+        margin.style.width = outerWidth * scx + 'px';
+        margin.style.height = outerHeight * scx + 'px';
+        let computedStyle;
+        if(vd instanceof karas.Text) {
+          computedStyle = {};
+        }
+        else {
+          computedStyle = vd.getComputedStyle();
+        }
+        setMBP([
+          computedStyle.marginTop,
+          computedStyle.marginRight,
+          computedStyle.marginBottom,
+          computedStyle.marginLeft,
+        ], [
+          computedStyle.borderTopWidth,
+          computedStyle.borderRightWidth,
+          computedStyle.borderBottomWidth,
+          computedStyle.borderLeftWidth,
+        ], [
+          computedStyle.paddingTop,
+          computedStyle.paddingRight,
+          computedStyle.paddingBottom,
+          computedStyle.paddingLeft,
+        ]);
         if(matrixEvent.length === 6) {
-          div2.style.transform = `matrix(${matrixEvent.join(',')})`;
+          margin.style.transform = `matrix(${matrixEvent.join(',')})`;
         }
         else if(matrixEvent.length === 16) {
-          div2.style.transform = `matrix3d(${matrixEvent.join(',')})`;
+          margin.style.transform = `matrix3d(${matrixEvent.join(',')})`;
         }
       }
       else {
-        div2.style.left = 0;
-        div2.style.top = 0;
-        div2.style.width = '100%';
-        div2.style.height = '100%';
+        margin.style.width = margin.style.height = '100%';
+        margin.style.left = margin.style.top = 0;
       }
       document.body.appendChild(div);
     }
@@ -144,36 +199,43 @@ let __KARAS_DEVTOOLS__ = window.__KARAS_DEVTOOLS__ = {
           return;
         }
       }
+      let value = vdJson(karas, vd);
+      value.prefix = prefix;
       window.postMessage({
         KARAS_DEVTOOLS: true,
         key: enums.CLICK_ELEMENT,
-        value: vdJson(karas, vd),
+        value,
       }, '*');
     }
   },
+  enterBox(type, prefix) {
+    this.mouseEnter(prefix);
+    margin.style.visibility
+      = border.style.visibility
+      = padding.style.visibility
+      = content.style.visibility
+      = 'hidden';
+  },
+  leaveBox(type) {
+    margin.style.visibility
+      = border.style.visibility
+      = padding.style.visibility
+      = content.style.visibility
+      = 'visible';
+    document.body.removeChild(div);
+  },
+  overBox(type) {
+    margin.style.visibility
+      = border.style.visibility
+      = padding.style.visibility
+      = content.style.visibility
+      = 'hidden';
+    let o = {
+      margin,
+      border,
+      padding,
+      content,
+    }[type];
+    o.style.visibility = 'visible';
+  },
 };
-
-// function detectKaras() {
-//   if(window.karas && typeof karas.render === 'function' && karas.version) {
-//     window.postMessage({
-//       KARAS_DEVTOOLS: true,
-//       key: enums.DETECT,
-//       value: true,
-//     }, '*');
-//   }
-//   else {
-//     window.postMessage({
-//       KARAS_DEVTOOLS: true,
-//       key: enums.DETECT,
-//       value: false,
-//     }, '*');
-//   }
-// }
-//
-// document.addEventListener('visibilitychange',function() { //浏览器切换事件
-//   if(document.visibilityState === 'visible') { //状态判断
-//     detectKaras();
-//   }
-// });
-//
-// detectKaras();
