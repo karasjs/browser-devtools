@@ -1,6 +1,5 @@
 import React from 'react';
 import classnames from 'classnames';
-import enums from '../enums';
 
 import './tree.less';
 
@@ -12,9 +11,6 @@ class Tree extends React.Component {
 
   click(e) {
     let last = this.el.querySelector('div.active');
-    if(last) {
-      last.classList.remove('active');
-    }
     let target = e.target;
     let item;
     if(['b'].indexOf(target.tagName.toLowerCase()) > -1) {
@@ -32,15 +28,24 @@ class Tree extends React.Component {
       item = target.parentNode;
     }
     if(item) {
-      item.classList.add('active');
+      if(!last || last !== item) {
+        last && last.classList.remove('active');
+        item.classList.add('active');
+        chrome.devtools.inspectedWindow.eval(`__KARAS_DEVTOOLS__.click("${item.title}");`);
+      }
+      last = item;
+    }
+    else if(last) {
+      last.classList.remove('active');
+      last = null;
     }
   }
 
   dblClick(e) {
-    let last = this.el.querySelector('div.active');
-    if(last) {
-      last.classList.remove('active');
-    }
+    // let last = this.el.querySelector('div.active');
+    // if(last) {
+    //   last.classList.remove('active');
+    // }
     let target = e.target;
     let item;
     if(target.tagName.toLowerCase() === 'div' && target.classList.contains('name')) {

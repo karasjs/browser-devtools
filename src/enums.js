@@ -9,4 +9,5 @@ export default {
   TAB_UPDATE: 7,
   MOUSE_ENTER_ELEMENT: 8,
   MOUSE_LEAVE_ELEMENT: 9,
+  CLICK_ELEMENT: 10,
 };

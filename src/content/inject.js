@@ -1,11 +1,15 @@
 import enums from '../enums';
-import { root2json } from '../convert';
+import { rootTree, vdJson } from '../convert';
 
 let div = document.createElement('div');
 div.style.zIndex = 10000000;
 div.style.position = 'fixed';
-div.style.backgroundColor = 'rgba(120, 170, 210, 0.7)';
+// div.style.backgroundColor = 'rgba(120, 170, 210, 0.7)';
 div.style.pointerEvents = 'none';
+let div2 = document.createElement('div');
+div2.style.position = 'absolute';
+div2.style.backgroundColor = 'rgba(120, 170, 210, 0.7)';
+div.appendChild(div2);
 
 let target;
 let root;
@@ -27,6 +31,10 @@ document.addEventListener('mousemove', function(e) {
           div.style.top = rect.top + 'px';
           div.style.width = rect.width + 'px';
           div.style.height = rect.height + 'px';
+          div2.style.left = 0;
+          div2.style.top = 0;
+          div2.style.width = '100%';
+          div2.style.height = '100%';
           document.body.appendChild(div);
           window.postMessage({
             KARAS_DEVTOOLS: true,
@@ -62,7 +70,7 @@ document.addEventListener('click', function() {
       window.postMessage({
         KARAS_DEVTOOLS: true,
         key: enums.INIT_ROOT_JSON,
-        value: root2json(karas, root),
+        value: rootTree(karas, root),
       }, '*');
     }
     else {
@@ -79,8 +87,8 @@ let __KARAS_DEVTOOLS__ = window.__KARAS_DEVTOOLS__ = {
     isInspectCanvas = false;
   },
   mouseEnter(prefix) {
-    div.style.width = div.style.height = 0;
-    div.style.transform = null;
+    div2.style.width = div2.style.height = 0;
+    div2.style.transform = null;
     if(root) {
       let rect = target.getBoundingClientRect();
       let scx = root.__scx;
@@ -102,23 +110,46 @@ let __KARAS_DEVTOOLS__ = window.__KARAS_DEVTOOLS__ = {
           }
         }
         let { sx, sy, outerWidth, outerHeight, matrixEvent } = vd;
-        div.style.left = rect.left + sx * scx + 'px';
-        div.style.top = rect.top + sy * scx + 'px';
-        div.style.width = outerWidth * scx + 'px';
-        div.style.height = outerHeight * scx + 'px';
-        div.style.transform = `matrix3d(${matrixEvent.join(',')})`;
+        div2.style.left = sx * scx + 'px';
+        div2.style.top = sy * scx + 'px';
+        div2.style.width = outerWidth * scx + 'px';
+        div2.style.height = outerHeight * scx + 'px';
+        if(matrixEvent.length === 6) {
+          div2.style.transform = `matrix(${matrixEvent.join(',')})`;
+        }
+        else if(matrixEvent.length === 16) {
+          div2.style.transform = `matrix3d(${matrixEvent.join(',')})`;
+        }
       }
       else {
-        div.style.left = rect.left + 'px';
-        div.style.top = rect.top + 'px';
-        div.style.width = rect.width + 'px';
-        div.style.height = rect.height + 'px';
+        div2.style.left = 0;
+        div2.style.top = 0;
+        div2.style.width = '100%';
+        div2.style.height = '100%';
       }
       document.body.appendChild(div);
     }
   },
   mouseLeave(prefix) {
     document.body.removeChild(div);
+  },
+  click(prefix) {
+    if(root) {
+      let vd = root;
+      let path = prefix ? prefix.split(',') : [];
+      while(path.length) {
+        let index = path.shift();
+        vd = vd.children[index];
+        if(!vd) {
+          return;
+        }
+      }
+      window.postMessage({
+        KARAS_DEVTOOLS: true,
+        key: enums.CLICK_ELEMENT,
+        value: vdJson(karas, vd),
+      }, '*');
+    }
   },
 };
 

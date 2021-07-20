@@ -1,10 +1,9 @@
 import React from 'react';
 import ReactDom from 'react-dom';
-import { transaction } from 'mobx';
-import { Provider } from 'mobx-react';
 import classnames from 'classnames';
 import enums from '../enums';
 import Tree from './Tree';
+import Attr from './Attr';
 
 import './panel.html';
 import './panel.less';
@@ -60,16 +59,16 @@ class App extends React.Component {
         </div>
         <Tree ref={el => this.tree = el}/>
       </div>
-      <div className="side"></div>
+      <div className="side">
+        <Attr ref={el => this.attr = el}/>
+      </div>
     </div>;
   }
 }
 
 let app;
 ReactDom.render(
-  <Provider>
-    <App ref={el => app = el}/>
-  </Provider>,
+  <App ref={el => app = el}/>,
   document.getElementById('root')
 );
 
@@ -103,5 +102,11 @@ chrome.runtime.onMessage.addListener((request, sender) => {
         json: null,
       });
     }
+  }
+  else if(request.key === enums.CLICK_ELEMENT) {
+    console.log(request.value);
+    app.attr.setState({
+      json: request.value,
+    });
   }
 });

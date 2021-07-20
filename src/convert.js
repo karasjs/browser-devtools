@@ -1,4 +1,4 @@
-function vd2json(karas, vd) {
+function vdTree(karas, vd) {
   let res = {
     tagName: vd.tagName,
   };
@@ -10,12 +10,42 @@ function vd2json(karas, vd) {
           content: item.content,
         };
       }
-      return vd2json(karas, item);
+      return vdTree(karas, item);
     });
   }
   return res;
 }
 
-export function root2json(karas, root) {
-  return vd2json(karas, root);
+export function rootTree(karas, root) {
+  return vdTree(karas, root);
+}
+
+function translateStyleKey(karas, json) {
+  let res = {};
+  let STYLE_RV_KEY = karas.enums.STYLE_RV_KEY;
+  Object.keys(json).forEach(k => {
+    let k2 = STYLE_RV_KEY[k];
+    res[k2] = json[k];
+  });
+  return res;
+}
+
+export function vdJson(karas, vd) {
+  return {
+    x: vd.x,
+    y: vd.y,
+    ox: vd.ox,
+    oy: vd.oy,
+    sx: vd.sx,
+    sy: vd.sy,
+    width: vd.width,
+    height: vd.height,
+    clientWidth: vd.clientWidth,
+    clientHeight: vd.clientHeight,
+    offsetWidth: vd.offsetWidth,
+    offsetHeight: vd.offsetHeight,
+    style: translateStyleKey(karas, vd.style),
+    currentStyle: translateStyleKey(karas, vd.currentStyle),
+    computedStyle: translateStyleKey(karas, vd.computedStyle),
+  };
 }
