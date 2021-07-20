@@ -14,9 +14,6 @@ class Attr extends React.Component {
   }
 
   enter(type) {
-    // if(type !== 'box') {
-    //   this.box.classList.add(type);
-    // }
     chrome.devtools.inspectedWindow.eval(`__KARAS_DEVTOOLS__.enterBox("${type}", "${this.state.json.prefix}");`);
   }
 
@@ -24,9 +21,6 @@ class Attr extends React.Component {
     this.setState({
       type: null,
     });
-    // if(type !== 'box') {
-    //   this.box.classList.remove(type);
-    // }
     chrome.devtools.inspectedWindow.eval(`__KARAS_DEVTOOLS__.leaveBox("${type}");`);
   }
 
@@ -40,7 +34,7 @@ class Attr extends React.Component {
 
   render() {
     let json = this.state.json;
-    if(json) {
+    if(json) {console.log(json);
       return <div className="attr">
         <div className={classnames('box', this.state.type)}
              ref={el => this.box = el}
@@ -49,32 +43,32 @@ class Attr extends React.Component {
           <div className="margin"
                onMouseOver={e => this.over(e, 'margin')}>
             <span className="label">margin</span>
-            <span className="top">{json.marginTop || '-'}</span>
-            <span className="bottom">{json.marginBottom || '-'}</span>
-            <span className="left">{json.marginLeft || '-'}</span>
+            <span className="top">{json.computedStyle.marginTop || '-'}</span>
+            <span className="bottom">{json.computedStyle.marginBottom || '-'}</span>
+            <span className="left">{json.computedStyle.marginLeft || '-'}</span>
             <div className="border"
                  onMouseOver={e => this.over(e, 'border')}>
               <span className="label">border</span>
-              <span className="top">{json.borderTopWidth || '-'}</span>
-              <span className="bottom">{json.borderBottomWidth || '-'}</span>
-              <span className="left">{json.borderLeftWidth || '-'}</span>
+              <span className="top">{json.computedStyle.borderTopWidth || '-'}</span>
+              <span className="bottom">{json.computedStyle.borderBottomWidth || '-'}</span>
+              <span className="left">{json.computedStyle.borderLeftWidth || '-'}</span>
               <div className="padding"
                    onMouseOver={e => this.over(e, 'padding')}>
                 <span className="label">padding</span>
-                <span className="top">{json.paddingTop || '-'}</span>
-                <span className="bottom">{json.paddingBottom || '-'}</span>
-                <span className="left">{json.paddingLeft || '-'}</span>
+                <span className="top">{json.computedStyle.paddingTop || '-'}</span>
+                <span className="bottom">{json.computedStyle.paddingBottom || '-'}</span>
+                <span className="left">{json.computedStyle.paddingLeft || '-'}</span>
                 <div className="content"
                      onMouseOver={e => this.over(e, 'content')}>
                   {
                     formatWH(json.width) + ' × ' + formatWH(json.height)
                   }
                 </div>
-                <span className="right">{json.paddingRight || '-'}</span>
+                <span className="right">{json.computedStyle.paddingRight || '-'}</span>
               </div>
-              <span className="right">{json.borderRightWidth || '-'}</span>
+              <span className="right">{json.computedStyle.borderRightWidth || '-'}</span>
             </div>
-            <span className="right">{json.marginRight || '-'}</span>
+            <span className="right">{json.computedStyle.marginRight || '-'}</span>
           </div>
         </div>
       </div>;
