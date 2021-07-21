@@ -42,10 +42,6 @@ class Tree extends React.Component {
   }
 
   dblClick(e) {
-    // let last = this.el.querySelector('div.active');
-    // if(last) {
-    //   last.classList.remove('active');
-    // }
     let target = e.target;
     let item;
     if(target.tagName.toLowerCase() === 'div' && target.classList.contains('name')) {
@@ -59,6 +55,28 @@ class Tree extends React.Component {
         item.classList.add('spread');
       }
     }
+  }
+
+  focus(path) {
+    let last = this.el.querySelector('div.active');
+    if(last) {
+      last.classList.remove('active');
+    }
+    let root = this.el.querySelector('.item.root');
+    if(path) {
+      let list = path.split(',');
+      let node = root;
+      for(let i = 0, len = list.length; i < len; i++) {
+        let j = list.shift();
+        node = node.children[1].children[j];
+        node.classList.add('spread');
+      }
+      last = node;
+    }
+    else {
+      last = root;
+    }
+    last.classList.add('active');
   }
 
   enter(e, prefix) {

@@ -17,7 +17,7 @@ class Attr extends React.Component {
   }
 
   enter(type) {
-    chrome.devtools.inspectedWindow.eval(`__KARAS_DEVTOOLS__.enterBox("${type}", "${this.state.json.prefix}");`);
+    chrome.devtools.inspectedWindow.eval(`__KARAS_DEVTOOLS__.enterBox("${type}", "${this.state.json.path}");`);
   }
 
   leave(type) {

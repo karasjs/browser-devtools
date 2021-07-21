@@ -1,5 +1,6 @@
 import enums from '../enums';
 import { rootTree, vdJson } from '../convert';
+import find from './find';
 
 let div = document.createElement('div');
 div.style.zIndex = 10000000;
@@ -46,12 +47,44 @@ function setMBP(m, b, p) {
 
 let target; // canvas对象
 let root; // canvas的karas根节点Root对象
-let isOnKarasCanvas;
 let isInspectCanvas;
+let isOnKarasCanvas;
 let isInspectElement;
+let isOnElement;
+let lastPath;
+let timeout;
 document.addEventListener('mousemove', function(e) {
   if(isInspectElement) {
-    console.log(root);
+    if(e.target === target) {
+      clearTimeout(timeout);
+      timeout = setTimeout(function() {
+        let { clientX, clientY } = e;
+        let { x, y, width, height } = target.getBoundingClientRect();
+        x = clientX - x;
+        y = clientY - y;
+        let scx = root.__scx;
+        if(scx === undefined) {
+          scx = width / root.width;
+        }
+        x *= scx;
+        let scy = root.__scy;
+        if(scy === undefined) {
+          scy = height / root.height;
+        }
+        y *= scy;
+        let path = find(karas, root, x, y);
+        if(lastPath !== path) {
+          lastPath = path;
+          isOnElement = true;
+          __KARAS_DEVTOOLS__.mouseEnter(path);
+        }
+      }, 20);
+    }
+    else if(isOnElement) {
+      lastPath = null;
+      isOnElement = false;
+      document.body.removeChild(div);
+    }
   }
   else if(isInspectCanvas) {
     if(e.target !== target) {
@@ -92,7 +125,31 @@ document.addEventListener('mousemove', function(e) {
   }
 }, true);
 document.addEventListener('click', function() {
-  if(isInspectCanvas) {
+  if(isInspectElement) {
+    isInspectElement = false;
+    if(root && isOnElement) {
+      isOnElement = false;
+      let vd = root;
+      let path = lastPath ? lastPath.split(',') : [];
+      while(path.length) {
+        let index = path.shift();
+        vd = vd.children[index];
+        if(!vd) {
+          return;
+        }
+      }
+      let value = vdJson(karas, vd);
+      value.path = lastPath;
+      window.postMessage({
+        KARAS_DEVTOOLS: true,
+        key: enums.CLICK_ELEMENT,
+        value,
+      }, '*');
+      document.body.removeChild(div);
+      lastPath = null;
+    }
+  }
+  else if(isInspectCanvas) {
     isInspectCanvas = false;
     window.postMessage({
       KARAS_DEVTOOLS: true,
@@ -210,10 +267,10 @@ let __KARAS_DEVTOOLS__ = window.__KARAS_DEVTOOLS__ = {
         }
       }
       let value = vdJson(karas, vd);
-      value.prefix = prefix;
+      value.path = prefix;
       window.postMessage({
         KARAS_DEVTOOLS: true,
-        key: enums.CLICK_ELEMENT,
+        key: enums.CLICK_TREE,
         value,
       }, '*');
     }
@@ -247,5 +304,11 @@ let __KARAS_DEVTOOLS__ = window.__KARAS_DEVTOOLS__ = {
       content,
     }[type];
     o.style.visibility = 'visible';
+  },
+  startInspectElement() {
+    isInspectElement = true;
+  },
+  endInspectElement() {
+    isInspectElement = false;
   },
 };

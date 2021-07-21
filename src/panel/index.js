@@ -36,7 +36,12 @@ class App extends React.Component {
       this.setState({
         inspectElement: !this.state.inspectElement,
       }, () => {
-
+        if(this.state.inspectElement) {
+          chrome.devtools.inspectedWindow.eval("__KARAS_DEVTOOLS__.startInspectElement();");
+        }
+        else {
+          chrome.devtools.inspectedWindow.eval("__KARAS_DEVTOOLS__.endInspectElement();");
+        }
       });
     }
   }
@@ -72,7 +77,7 @@ ReactDom.render(
   document.getElementById('root')
 );
 
-chrome.runtime.onMessage.addListener((request, sender) => {
+chrome.runtime.onMessage.addListener( (request, sender) => {
   if(request.key === enums.END_INSPECT_CANVAS) {
     app.setState({
       inspectCanvas: false,
@@ -111,10 +116,19 @@ chrome.runtime.onMessage.addListener((request, sender) => {
       });
     }
   }
-  else if(request.key === enums.CLICK_ELEMENT) {
+  else if(request.key === enums.CLICK_TREE) {
     app.attr.setState({
       json: request.value,
     });
   }
-  return true;
+  else if(request.key === enums.CLICK_ELEMENT) {
+    app.setState({
+      inspectElement: false,
+    });
+    app.tree.focus(request.value.path);
+    app.attr.setState({
+      json: request.value,
+    });
+  }
+  return Promise.resolve("ok");
 });
