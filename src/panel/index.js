@@ -116,4 +116,5 @@ chrome.runtime.onMessage.addListener((request, sender) => {
       json: request.value,
     });
   }
+  return true;
 });

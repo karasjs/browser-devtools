@@ -44,8 +44,8 @@ function setMBP(m, b, p) {
   padding.style.borderLeftWidth = (p[3] || 0) + 'px';
 }
 
-let target;
-let root;
+let target; // canvas对象
+let root; // canvas的karas根节点Root对象
 let isOnKarasCanvas;
 let isInspectCanvas;
 let isInspectElement;
@@ -82,6 +82,7 @@ document.addEventListener('mousemove', function(e) {
         document.body.removeChild(div);
       }
       isOnKarasCanvas = false;
+      root = null;
       window.postMessage({
         KARAS_DEVTOOLS: true,
         key: enums.IS_KARAS_CANVAS,
@@ -89,7 +90,7 @@ document.addEventListener('mousemove', function(e) {
       }, '*');
     }
   }
-});
+}, true);
 document.addEventListener('click', function() {
   if(isInspectCanvas) {
     isInspectCanvas = false;
@@ -111,7 +112,16 @@ document.addEventListener('click', function() {
     }
     __KARAS_DEVTOOLS__.endInspectCanvas();
   }
-});
+}, true);
+window.addEventListener('scroll', function() {
+  if(root) {
+    let rect = target.getBoundingClientRect();
+    div.style.left = rect.left + 'px';
+    div.style.top = rect.top + 'px';
+    div.style.width = rect.width + 'px';
+    div.style.height = rect.height + 'px';
+  }
+}, true);
 
 let __KARAS_DEVTOOLS__ = window.__KARAS_DEVTOOLS__ = {
   startInspectCanvas() {
