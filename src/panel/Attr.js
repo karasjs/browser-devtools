@@ -100,25 +100,144 @@ function formatCurrentStyle(k, v) {
     case 'order':
       return v;
     case 'rotate_3d':
-      return JSON.stringify(v.slice(0, 3).concat(unit2String(v[3])));
+      return v.slice(0, 3).join(',') + ',' + unit2String(v[3]);
     case 'filter':
-      return v.map(item => {
-        let [k, v] = item;
-        return `${k}(${unit2String(v)})`;
-      }).join(' ');
+      if(v) {
+        return v.map(item => {
+          let [k, v] = item;
+          return `${k}(${unit2String(v)})`;
+        }).join(',');
+      }
+      return '';
     case 'boxShadow':
-      return v.map(v2 => {
-        let length = v2.length;
-        return v2.slice(0, length - 2).map(item => unit2String(item))
+      if(v) {
+        return v.map(v2 => {
+          let length = v2.length;
+          return v2.slice(0, length - 2).map(item => unit2String(item))
             .concat(unit2String([v2[length - 2], UNIT.RGBA]))
             .concat(v2[length - 1]).join(' ');
-      }).join(', ');
+        }).join(',');
+      }
+      return '';
     default:
       return unit2String(v);
   }
 }
 
-function formatComputedStyle(k, v) {}
+function formatComputedStyle(k, v) {
+  if(typeof v === 'string') {
+    return v;
+  }
+  console.log(k, v);
+  switch(k) {
+    case 'color':
+    case 'backgroundColor':
+    case 'borderTopColor':
+    case 'borderRightColor':
+    case 'borderBottomColor':
+    case 'borderLeftColor':
+      return unit2String([v, UNIT.RGBA]);
+    case 'backgroundRepeat':
+      return JSON.stringify(v);
+    case 'backgroundPositionX':
+    case 'backgroundPositionY':
+    case 'borderTopLeftRadius':
+    case 'borderTopRightRadius':
+    case 'borderBottomRightRadius':
+    case 'borderBottomLeftRadius':
+    case 'transformOrigin':
+    case 'perspectiveOrigin':
+      return JSON.stringify(v.map(item => item + 'px'));
+    case 'fontWeight':
+      return v;
+    case 'backgroundImage':
+      v = v.filter(v => v);
+      if(v.length) {
+        return JSON.stringify(v.map(item => {
+          if(typeof item === 'string') {
+            return item;
+          }
+          let s = `${item.k}Gradient(${item.d},`;
+          item.v.forEach(item2 => {
+            let s2 = unit2String([item2[0], UNIT.RGBA]);
+            if(item[1]) {
+              s2 += ' ' + unit2String(item2[1]);
+            }
+            s += s2 + ',';
+          });
+          return s.replace(/,$/, '') + ')';
+        }));
+      }
+      return '';
+    case 'flexGrow':
+    case 'flexShrink':
+    case 'opacity':
+    case 'zIndex':
+    case 'lineClamp':
+    case 'order':
+    case 'scaleX':
+    case 'scaleY':
+    case 'scaleZ':
+      return v;
+    case 'skewX':
+    case 'skewY':
+    case 'rotateX':
+    case 'rotateY':
+    case 'rotateZ':
+      return v + 'deg';
+    case 'rotate_3d':
+      return v.slice(0, 3).join(',') + ',' + v[3] + 'deg';
+    case 'transform':
+      if(v.length === 9) {
+        return `matrix(${v.join(',')})`;
+      }
+      return `matrix3d(${v.join(',')})`;
+    case 'filter':
+      if(v) {
+        return v.map(item => {
+          let [k, v] = item;
+          if(k === 'blur') {
+            return `${k}(${v}px)`;
+          }
+          if(k === 'hue-rotate') {
+            return `${k}(${v}deg)`;
+          }
+          return `${k}(${v}%)`;
+        }).join(',');
+      }
+      return '';
+    case 'boxShadow':
+      if(v) {
+        return v.map(v2 => {
+          let length = v2.length;
+          return v2.slice(0, length - 2).map(item => item + 'px')
+            .concat(unit2String([v2[length - 2], UNIT.RGBA]))
+            .concat(v2[length - 1]).join(' ');
+        }).join(',');
+      }
+      return '';
+    case 'backgroundSize':
+      if(v) {
+        return JSON.stringify(v.map(item => {
+          return item.map(item2 => {
+            if(item2 === -1 || item2 === 'auto') {
+              return 'auto';
+            }
+            if(item2 === -2 || item2 === 'contain') {
+              return 'contain';
+            }
+            if(item2 === -3 || item2 === 'cover') {
+              return 'cover';
+            }
+            return item2 + 'px';
+          });
+        }));
+      }
+      return '';
+    default:
+      return v + 'px';
+  }
+}
 
 class Attr extends React.Component {
   constructor(props) {
@@ -207,7 +326,7 @@ class Attr extends React.Component {
         })}>
           {
             Object.keys(json.computedStyle).map(k => {
-              return <div key={k}><span className="k">{k}</span>:<span className="v">{1}</span></div>;
+              return <div key={k}><span className="k">{k}</span>:<span className="v">{formatComputedStyle(k, json.computedStyle[k])}</span></div>;
             })
           }
         </div>
