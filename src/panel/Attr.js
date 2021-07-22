@@ -128,7 +128,6 @@ function formatComputedStyle(k, v) {
   if(typeof v === 'string') {
     return v;
   }
-  console.log(k, v);
   switch(k) {
     case 'color':
     case 'backgroundColor':
@@ -270,6 +269,32 @@ class Attr extends React.Component {
     let json = this.state.json;
     if(json) {
       return <div className="attr">
+        <div className="coords">
+          <div>
+            <span className="k">x</span>:
+            <span className="v">{formatLength(json.x)}</span>
+          </div>
+          <div>
+            <span className="k">y</span>:
+            <span className="v">{formatLength(json.y)}</span>
+          </div>
+          <div>
+            <span className="k">ox</span>:
+            <span className="v">{formatLength(json.ox)}</span>
+          </div>
+          <div>
+            <span className="k">oy</span>:
+            <span className="v">{formatLength(json.oy)}</span>
+          </div>
+          <div>
+            <span className="k">sx</span>:
+            <span className="v">{formatLength(json.sx)}</span>
+          </div>
+          <div>
+            <span className="k">sy</span>:
+            <span className="v">{formatLength(json.sy)}</span>
+          </div>
+        </div>
         <div className={classnames('box', this.state.type)}
              ref={el => this.box = el}
              onMouseEnter={() => this.enter('box')}
