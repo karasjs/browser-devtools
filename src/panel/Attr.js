@@ -10,10 +10,122 @@ function formatLength(s) {
   return s.toFixed(1).replace(/\.0$/, '');
 }
 
+const UNIT = {
+  AUTO: 0,
+  PX: 1,
+  PERCENT: 2,
+  NUMBER: 3,
+  INHERIT: 4,
+  DEG: 5,
+  STRING: 6,
+  RGBA: 7,
+  REM: 8,
+  EM: 9,
+  VW: 10,
+  VH: 11,
+};
+const UNIT_V = {};
+Object.keys(UNIT).forEach(k => {
+  let v = UNIT[k];
+  UNIT_V[v] = k.toLowerCase();
+});
+
+function unit2String(v) {
+  if(typeof v === 'string') {
+    return v;
+  }
+  if(!v) {
+    return '';
+  }
+  if(v[1] === UNIT.AUTO) {
+    return 'auto';
+  }
+  if(v[1] === UNIT.INHERIT) {
+    return 'inherit';
+  }
+  if(v[1] === UNIT.STRING) {
+    return v[0];
+  }
+  if(v[1] === UNIT.RGBA) {
+    return `rgba(${v[0].join(',')})`;
+  }
+  if(v[1] === UNIT.NUMBER) {
+    return v[0];
+  }
+  if(v[1] === UNIT.PERCENT) {
+    return v[0] + '%';
+  }
+  return v[0] + UNIT_V[v[1]];
+}
+
+function formatCurrentStyle(k, v) {
+  switch(k) {
+    case 'backgroundImage':
+      v = v.filter(v => v);
+      if(v.length) {
+        return JSON.stringify(v.map(item => {
+          if(typeof item === 'string') {
+            return item;
+          }
+          let s = `${item.k}Gradient(${item.d},`;
+          item.v.forEach(item2 => {
+            let s2 = unit2String([item2[0], UNIT.RGBA]);
+            if(item[1]) {
+              s2 += ' ' + unit2String(item2[1]);
+            }
+            s += s2 + ',';
+          });
+          return s.replace(/,$/, '') + ')';
+        }));
+      }
+      return '';
+    case 'backgroundSize':
+      return JSON.stringify(v.map(item => item.map(item2 => unit2String(item2))));
+    case 'backgroundPositionX':
+    case 'backgroundPositionY':
+    case 'borderTopLeftRadius':
+    case 'borderTopRightRadius':
+    case 'borderBottomRightRadius':
+    case 'borderBottomLeftRadius':
+    case 'transformOrigin':
+    case 'perspectiveOrigin':
+      return JSON.stringify(v.map(item => unit2String(item)));
+    case 'backgroundRepeat':
+      return JSON.stringify(v);
+    case 'flexGrow':
+    case 'flexShrink':
+    case 'opacity':
+    case 'zIndex':
+    case 'lineClamp':
+    case 'order':
+      return v;
+    case 'rotate_3d':
+      return JSON.stringify(v.slice(0, 3).concat(unit2String(v[3])));
+    case 'filter':
+      return v.map(item => {
+        let [k, v] = item;
+        return `${k}(${unit2String(v)})`;
+      }).join(' ');
+    case 'boxShadow':
+      return v.map(v2 => {
+        let length = v2.length;
+        return v2.slice(0, length - 2).map(item => unit2String(item))
+            .concat(unit2String([v2[length - 2], UNIT.RGBA]))
+            .concat(v2[length - 1]).join(' ');
+      }).join(', ');
+    default:
+      return unit2String(v);
+  }
+}
+
+function formatComputedStyle(k, v) {}
+
 class Attr extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      tab: 0,
+    };
   }
 
   enter(type) {
@@ -73,6 +185,31 @@ class Attr extends React.Component {
             </div>
             <span className="right">{formatLength(json.computedStyle.marginRight || '-')}</span>
           </div>
+        </div>
+        <ul className="tab">
+          <li className={this.state.tab === 0 ? 'current' : ''}
+              onClick={() => this.setState({tab: 0})}>currentStyle</li>
+          <li className={this.state.tab === 1 ? 'current' : ''}
+              onClick={() => this.setState({tab: 1})}>computedStyle</li>
+        </ul>
+        <div className={classnames('current-style', {
+          current: this.state.tab === 0,
+        })}>
+          {
+            Object.keys(json.currentStyle).map(k => {
+              return <div key={k}><span className="k">{k}</span>:
+                <span className="v">{formatCurrentStyle(k, json.currentStyle[k])}</span></div>;
+            })
+          }
+        </div>
+        <div className={classnames('computed-style', {
+          current: this.state.tab === 1,
+        })}>
+          {
+            Object.keys(json.computedStyle).map(k => {
+              return <div key={k}><span className="k">{k}</span>:<span className="v">{1}</span></div>;
+            })
+          }
         </div>
       </div>;
     }
