@@ -40,7 +40,7 @@ function willResponseEvent(karas, vd, x, y, prefix = '') {
     for(let i = 0, len = children.length; i < len; i++) {
       children[i].__index__ = i;
     }
-    for(let i = 0, len = zIndexChildren.length; i < len; i++) {
+    for(let i = zIndexChildren.length - 1; i >= 0; i--) {
       let item = zIndexChildren[i];
       if(item instanceof karas.Text) {
         continue;

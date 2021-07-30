@@ -215,29 +215,33 @@ let __KARAS_DEVTOOLS__ = window.__KARAS_DEVTOOLS__ = {
         margin.style.top = sy * scx + 'px';
         margin.style.width = outerWidth * scx + 'px';
         margin.style.height = outerHeight * scx + 'px';
-        let computedStyle;
         if(vd instanceof karas.Text) {
-          computedStyle = {};
+          setMBP([], [], []);
         }
         else {
-          computedStyle = vd.getComputedStyle();
+          let computedStyle = vd.getComputedStyle();
+          setMBP([
+            computedStyle.marginTop,
+            computedStyle.marginRight,
+            computedStyle.marginBottom,
+            computedStyle.marginLeft,
+          ], [
+            computedStyle.borderTopWidth,
+            computedStyle.borderRightWidth,
+            computedStyle.borderBottomWidth,
+            computedStyle.borderLeftWidth,
+          ], [
+            computedStyle.paddingTop,
+            computedStyle.paddingRight,
+            computedStyle.paddingBottom,
+            computedStyle.paddingLeft,
+          ]);
         }
-        setMBP([
-          computedStyle.marginTop,
-          computedStyle.marginRight,
-          computedStyle.marginBottom,
-          computedStyle.marginLeft,
-        ], [
-          computedStyle.borderTopWidth,
-          computedStyle.borderRightWidth,
-          computedStyle.borderBottomWidth,
-          computedStyle.borderLeftWidth,
-        ], [
-          computedStyle.paddingTop,
-          computedStyle.paddingRight,
-          computedStyle.paddingBottom,
-          computedStyle.paddingLeft,
-        ]);
+        margin.style.left = sx + 'px';
+        margin.style.top = sy + 'px';
+        margin.style.width = outerWidth + 'px';
+        margin.style.height = outerHeight + 'px';
+        margin.style.transformOrigin = `${-sx}px ${-sy}px`;
         if(matrixEvent.length === 6) {
           margin.style.transform = `matrix(${matrixEvent.join(',')})`;
         }

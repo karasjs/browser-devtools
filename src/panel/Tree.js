@@ -98,7 +98,7 @@ class Tree extends React.Component {
            onMouseLeave={e => this.leave(e, prefix)}><b/>{json.tagName}</div>
       <div className="children">
       {
-        hasChildren && json.children.map((item, i) => this.renderTree(item, (prefix ? prefix + ',' : '') + i))
+        !!hasChildren && json.children.map((item, i) => this.renderTree(item, (prefix ? prefix + ',' : '') + i))
       }
       </div>
     </div>;
